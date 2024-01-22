@@ -5,6 +5,13 @@ module.exports = ({ strapi }) => ({
     return "Welcome to Strapi 🚀";
   },
 
+  async getAll() {
+    const result = await strapi.entityService.findMany(
+      "plugin::currency-conversion.currency",
+      {}
+    );
+    return result;
+  },
   async getCurrencyConversion(from, to, amount) {
     let message = {
       error: false,
@@ -40,5 +47,30 @@ module.exports = ({ strapi }) => ({
         return message;
       }
     }
+  },
+  async create(data) {
+    try {
+      return await strapi.db
+        .query("plugin::currency-conversion.currency")
+        .create({
+          data,
+        });
+    } catch (error) {
+      console.log(error);
+      return { error: true, message: error.message };
+    }
+  },
+  async delete(id) {
+    return await strapi.entityService.delete(
+      "plugin::currency-conversion.currency",
+      id
+    );
+  },
+  async update(id, data) {
+    return await strapi.entityService.update(
+      "plugin::currency-conversion.currency",
+      id,
+      { data }
+    );
   },
 });

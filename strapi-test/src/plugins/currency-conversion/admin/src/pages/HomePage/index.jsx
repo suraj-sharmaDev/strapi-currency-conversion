@@ -11,7 +11,7 @@ import { Layout,BaseHeaderLayout, ContentLayout  } from '@strapi/design-system';
 
 const HomePage = () => {
   return (
-    <Layout>
+    <Layout sideNav={undefined}>
       <BaseHeaderLayout 
         title="Currency Conversion"
         subtitle="Convert any value between currencies."

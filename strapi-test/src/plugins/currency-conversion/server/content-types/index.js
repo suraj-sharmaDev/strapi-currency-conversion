@@ -1,3 +1,7 @@
 'use strict';
 
-module.exports = {};
+const currency = require('./currency');
+
+module.exports = {
+    currency
+};
