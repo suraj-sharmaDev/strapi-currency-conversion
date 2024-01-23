@@ -29,19 +29,47 @@ module.exports = ({ strapi }) => ({
       return message;
     } else {
       try {
-        const resp = await fetch(
-          `https://api.frankfurter.app/latest?amount=${amount}&from=${from}&to=${to}`
-        );
-        const result = await resp.json();
-        const { rates } = result;
+        // const resp = await fetch(
+        //   `https://api.frankfurter.app/latest?amount=${amount}&from=${from}&to=${to}`
+        // );
+        // const result = await resp.json();
+        // const { rates } = result;
+        const relativeUSDFrom = await strapi.db
+          .query("plugin::currency-conversion.currency")
+          .findOne({
+            where: { name: from },
+          });
+
+        const relativeUSDTo = await strapi.db
+          .query("plugin::currency-conversion.currency")
+          .findOne({
+            where: { name: to },
+          });
+
+        if (!relativeUSDFrom) {
+          message.error = true;
+          message.messages = ["No stored data for " + from];
+          return message;
+        }
+
+        if (!relativeUSDTo) {
+          message.error = true;
+          message.messages = ["No stored data for " + to];
+          return message;
+        }
+
+        const fromUsdValue = relativeUSDFrom.relativeUSDValue * amount;
+        const convertedToValue = fromUsdValue / relativeUSDTo.relativeUSDValue;
+
         message.data = {
           from,
           to,
           amount,
-          converted_amount: rates?.[to.toUpperCase()],
+          converted_amount: convertedToValue,
         };
         return message;
       } catch (error) {
+        console.log(error);
         message.error = true;
         message.messages = [error.message];
         return message;
