@@ -10,6 +10,7 @@ import pluginId from "../../pluginId";
 import { Layout, BaseHeaderLayout, ContentLayout } from "@strapi/design-system";
 import CurrencyView from "../../components/home/CurrencyView";
 import styled from "styled-components";
+import { Helmet } from "react-helmet";
 
 const Container = styled.div`
   display: flex;
@@ -41,6 +42,7 @@ const HomePage = () => {
   const initializer = async () => {
     try {
       const resp = await fetch("/currency-conversion/getAll");
+      if (res?.error) return;
       const result = await resp.json();
       setCurrencies(result);
     } catch (error) {
@@ -101,6 +103,17 @@ const HomePage = () => {
           />
         </Container>
         <Button onClick={onClickCalculate}>Calculate</Button>
+        <button
+          className="SS_ProductCheckout"
+          type="button"
+          data-id="1"
+          data-email="test@mail.com"
+          data-url="http://localhost:1337"
+          // @ts-ignore
+          onClick={(e)=>{console.log("clicked010"); onClickBuyButton(e)}}
+        >
+          Buy Now
+        </button>
       </ContentLayout>
     </Layout>
   );

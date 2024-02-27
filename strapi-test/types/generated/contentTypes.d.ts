@@ -362,6 +362,40 @@ export interface AdminTransferTokenPermission extends Schema.CollectionType {
   };
 }
 
+export interface ApiOrderOrder extends Schema.CollectionType {
+  collectionName: 'orders';
+  info: {
+    singularName: 'order';
+    pluralName: 'orders';
+    displayName: 'Order';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    product_name: Attribute.String;
+    price: Attribute.String;
+    is_paid: Attribute.Boolean;
+    stripe_id: Attribute.String;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::order.order',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::order.order',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface PluginUploadFile extends Schema.CollectionType {
   collectionName: 'files';
   info: {
@@ -526,6 +560,50 @@ export interface PluginCurrencyConversionCurrency
   };
 }
 
+export interface PluginI18NLocale extends Schema.CollectionType {
+  collectionName: 'i18n_locale';
+  info: {
+    singularName: 'locale';
+    pluralName: 'locales';
+    collectionName: 'locales';
+    displayName: 'Locale';
+    description: '';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  pluginOptions: {
+    'content-manager': {
+      visible: false;
+    };
+    'content-type-builder': {
+      visible: false;
+    };
+  };
+  attributes: {
+    name: Attribute.String &
+      Attribute.SetMinMax<{
+        min: 1;
+        max: 50;
+      }>;
+    code: Attribute.String & Attribute.Unique;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'plugin::i18n.locale',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'plugin::i18n.locale',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface PluginUsersPermissionsPermission
   extends Schema.CollectionType {
   collectionName: 'up_permissions';
@@ -677,14 +755,15 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
   };
 }
 
-export interface PluginI18NLocale extends Schema.CollectionType {
-  collectionName: 'i18n_locale';
+export interface PluginStrapiStripeSsProduct extends Schema.CollectionType {
+  collectionName: 'strapi-stripe_ss-product';
   info: {
-    singularName: 'locale';
-    pluralName: 'locales';
-    collectionName: 'locales';
-    displayName: 'Locale';
-    description: '';
+    tableName: 'StripeProduct';
+    singularName: 'ss-product';
+    pluralName: 'ss-products';
+    displayName: 'Product';
+    description: 'Stripe Products';
+    kind: 'collectionType';
   };
   options: {
     draftAndPublish: false;
@@ -698,22 +777,119 @@ export interface PluginI18NLocale extends Schema.CollectionType {
     };
   };
   attributes: {
-    name: Attribute.String &
+    title: Attribute.String &
+      Attribute.Required &
       Attribute.SetMinMax<{
         min: 1;
-        max: 50;
       }>;
-    code: Attribute.String & Attribute.Unique;
+    slug: Attribute.UID<'plugin::strapi-stripe.ss-product', 'title'> &
+      Attribute.Required &
+      Attribute.Unique;
+    description: Attribute.Text &
+      Attribute.Required &
+      Attribute.SetMinMax<{
+        min: 1;
+      }>;
+    price: Attribute.Decimal & Attribute.Required;
+    currency: Attribute.String &
+      Attribute.Required &
+      Attribute.SetMinMax<{
+        min: 1;
+      }>;
+    productImage: Attribute.Media & Attribute.Required;
+    isSubscription: Attribute.Boolean & Attribute.DefaultTo<false>;
+    interval: Attribute.String;
+    trialPeriodDays: Attribute.Integer;
+    stripeProductId: Attribute.String &
+      Attribute.Required &
+      Attribute.SetMinMax<{
+        min: 3;
+      }>;
+    stripePriceId: Attribute.String &
+      Attribute.SetMinMax<{
+        min: 3;
+      }>;
+    stripePlanId: Attribute.String &
+      Attribute.SetMinMax<{
+        min: 3;
+      }>;
+    stripePayment: Attribute.Relation<
+      'plugin::strapi-stripe.ss-product',
+      'oneToMany',
+      'plugin::strapi-stripe.ss-payment'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
-      'plugin::i18n.locale',
+      'plugin::strapi-stripe.ss-product',
       'oneToOne',
       'admin::user'
     > &
       Attribute.Private;
     updatedBy: Attribute.Relation<
-      'plugin::i18n.locale',
+      'plugin::strapi-stripe.ss-product',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface PluginStrapiStripeSsPayment extends Schema.CollectionType {
+  collectionName: 'strapi-stripe_ss-payment';
+  info: {
+    tableName: 'StripePayment';
+    singularName: 'ss-payment';
+    pluralName: 'ss-payments';
+    displayName: 'Payment';
+    description: 'Stripe Payment';
+    kind: 'collectionType';
+  };
+  options: {
+    draftAndPublish: false;
+  };
+  pluginOptions: {
+    'content-manager': {
+      visible: false;
+    };
+    'content-type-builder': {
+      visible: false;
+    };
+  };
+  attributes: {
+    txnDate: Attribute.DateTime & Attribute.Required;
+    transactionId: Attribute.String &
+      Attribute.Required &
+      Attribute.SetMinMaxLength<{
+        maxLength: 250;
+      }>;
+    isTxnSuccessful: Attribute.Boolean & Attribute.DefaultTo<false>;
+    txnMessage: Attribute.Text &
+      Attribute.SetMinMaxLength<{
+        maxLength: 5000;
+      }>;
+    txnErrorMessage: Attribute.String &
+      Attribute.SetMinMaxLength<{
+        maxLength: 250;
+      }>;
+    txnAmount: Attribute.Decimal & Attribute.Required;
+    customerName: Attribute.String & Attribute.Required;
+    customerEmail: Attribute.String & Attribute.Required;
+    stripeProduct: Attribute.Relation<
+      'plugin::strapi-stripe.ss-payment',
+      'manyToOne',
+      'plugin::strapi-stripe.ss-product'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'plugin::strapi-stripe.ss-payment',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'plugin::strapi-stripe.ss-payment',
       'oneToOne',
       'admin::user'
     > &
@@ -731,13 +907,16 @@ declare module '@strapi/types' {
       'admin::api-token-permission': AdminApiTokenPermission;
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
+      'api::order.order': ApiOrderOrder;
       'plugin::upload.file': PluginUploadFile;
       'plugin::upload.folder': PluginUploadFolder;
       'plugin::currency-conversion.currency': PluginCurrencyConversionCurrency;
+      'plugin::i18n.locale': PluginI18NLocale;
       'plugin::users-permissions.permission': PluginUsersPermissionsPermission;
       'plugin::users-permissions.role': PluginUsersPermissionsRole;
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
-      'plugin::i18n.locale': PluginI18NLocale;
+      'plugin::strapi-stripe.ss-product': PluginStrapiStripeSsProduct;
+      'plugin::strapi-stripe.ss-payment': PluginStrapiStripeSsPayment;
     }
   }
 }

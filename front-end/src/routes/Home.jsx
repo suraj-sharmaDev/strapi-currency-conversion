@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/auth";
 import { useNavigate } from "react-router-dom";
 import CurrencySelector from "../components/CurrencySelector";
+import {Helmet} from "react-helmet";
 
 export default function Auth() {
   const { user, loading, logout } = useAuth();
@@ -105,7 +106,25 @@ export default function Auth() {
         </button>
       </div>
 
+      <button
+          className="SS_ProductCheckout"
+          type="button"
+          data-id="1"
+          data-email="test@mail.com"
+          data-url="http://localhost:5173/home"
+        >
+          Buy Now
+        </button>
+
       <button onClick={handleLogout}>Logout</button>
+
+      <Helmet>
+        <script
+          defer
+          type="text/javascript"
+          src="http://localhost:1337/plugins/strapi-stripe/static/stripe.js"
+        ></script>
+      </Helmet>
     </div>
   );
 }
