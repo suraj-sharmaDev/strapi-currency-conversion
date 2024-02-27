@@ -1,3 +1,4 @@
+// @ts-nocheck
 /*
  *
  * HomePage
@@ -41,10 +42,13 @@ const HomePage = () => {
 
   const initializer = async () => {
     try {
-      const resp = await fetch("/currency-conversion/getAll");
-      if (res?.error) return;
+      const resp = await fetch("/api/currency-conversion/getAll", {
+        headers: {Authorization: 'Bearer 56bb6a1cc066bd4b1b9646c1ab81a0dde68c5ee0c05273d6d22322c0eef7c38b60ce3a9a228d9f08443c367ff105671d123b80b066bb149eff7852b764af6a07e73030b74bb1e1de80cbf86618f469bdcfe4b37fc22ef9b9f9c8a2482c635353da40e2f3ee9966124a415e24b6ea1aaef69a16d8a5732ad837050dfd4a385847'}
+      });
       const result = await resp.json();
-      setCurrencies(result);
+      if (result && Array.isArray(result))  {
+        setCurrencies(result);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -60,8 +64,10 @@ const HomePage = () => {
 
   const onClickCalculate = async () => {
     try {
-      const url = `/currency-conversion?from=${state.origin}&to=${state.destination}&amount=${state.input}`;
-      const resp = await fetch(url);
+      const url = `/api/currency-conversion?from=${state.origin}&to=${state.destination}&amount=${state.input}`;
+      const resp = await fetch(url, {
+        headers: {Authorization: 'Bearer 56bb6a1cc066bd4b1b9646c1ab81a0dde68c5ee0c05273d6d22322c0eef7c38b60ce3a9a228d9f08443c367ff105671d123b80b066bb149eff7852b764af6a07e73030b74bb1e1de80cbf86618f469bdcfe4b37fc22ef9b9f9c8a2482c635353da40e2f3ee9966124a415e24b6ea1aaef69a16d8a5732ad837050dfd4a385847'}
+      });
       const result = await resp.json();
       if (result.error) throw new Error("Error in server");
       const output = result?.data?.converted_amount;
