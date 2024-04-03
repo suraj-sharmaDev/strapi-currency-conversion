@@ -10,6 +10,7 @@
     "strapi": "strapi"
   },
   "dependencies": {
+    "@chartbrew/plugin-strapi": "^1.0.0",
     "@strapi/plugin-cloud": "4.15.5",
     "@strapi/plugin-i18n": "4.15.5",
     "@strapi/plugin-users-permissions": "4.15.5",

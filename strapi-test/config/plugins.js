@@ -3,4 +3,5 @@ module.exports = {
     enabled: true,
     resolve: "./src/plugins/currency-conversion",
   },
+  chartbrew: true
 };
